@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { redirect, fail } from "@sveltejs/kit";
-
+import { PUBLIC_SITE_URL } from "$env/static/public";
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ locals }) {
     const { session } = await locals.safeGetSession();
@@ -46,7 +46,7 @@ export const actions = {
 
         try {
             
-            const response = await fetch('http://host.docker.internal:3000/createTrip', {
+            const response = await fetch(`${PUBLIC_SITE_URL}/createTrip`, {
                 method: "POST",
                 headers: {
                     'Authorization': `Bearer ${session.access_token}`, 
