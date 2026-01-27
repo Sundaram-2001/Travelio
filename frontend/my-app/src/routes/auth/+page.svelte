@@ -3,8 +3,8 @@
 
     import { supabase } from "$lib/supabaseClient";
     import { error } from "@sveltejs/kit";
-    import {PUBLIC_API_URL} from '$env/static/public'
-    // import {PUBLIC_SITE_URL} from '$env/static/public'
+    import { env } from '$env/dynamic/public';
+const PUBLIC_API_URL = env.PUBLIC_API_URL;
     let userName=''
     let email=''
     let successMsg=''
