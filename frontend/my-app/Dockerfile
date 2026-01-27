@@ -1,34 +1,39 @@
-#pulling the base image, here builder is the nickname that can be referred in the runner stage
+# Stage 1: The Builder
+FROM node:22-alpine AS builder 
 
-FROM node:22-alpine as builder 
-
-#creating the working directory in the container
 WORKDIR /app
 
-#copying the package.json and packge-lock.json
+# Copy package files
 COPY package*.json ./
 
-#installing the libraries
+# installing the libraries
+# We use --include=dev because SvelteKit needs devDependencies to run the 'build' command
 RUN npm install
 
-#copying the rest of the files/folders
+# COPY THE CONFIG FILES EXPLICITLY FIRST (Fixes the "Missing Svelte config" warning)
+COPY svelte.config.js vite.config.js jsconfig.json ./
+
+# Copy the rest of the source code
 COPY . . 
 
-#build the project
+# Build the project
+# Note: PUBLIC_API_URL must be in your Render Env Vars for this to succeed
 RUN npm run build
 
-FROM node:22-alpine as runner
+# Stage 2: The Runner
+FROM node:22-alpine AS runner
 
 WORKDIR /app
 
+# Copy the built app and necessary files from builder
 COPY --from=builder /app/build ./build
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/node_modules ./node_modules
 
+# Set environment to production
+ENV NODE_ENV=production
+# Render typically listens on port 10000, but we'll stick to 3000 if your Render PORT var is 3000
 EXPOSE 3000
 
-#using the production mode
-ENV NODE_ENV=production
-
-# running the completed build
+# Start the server
 CMD ["node", "build/index.js"]
