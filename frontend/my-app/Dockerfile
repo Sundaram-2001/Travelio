@@ -1,5 +1,6 @@
-#pulling the base image
-FROM node:22-alpine as builder
+#pulling the base image, here builder is the nickname that can be referred in the runner stage
+
+FROM node:22-alpine as builder 
 
 #creating the working directory in the container
 WORKDIR /app
@@ -26,8 +27,8 @@ COPY --from=builder /app/node_modules ./node_modules
 
 EXPOSE 3000
 
-# Tell SvelteKit to run in production mode
+#using the production mode
 ENV NODE_ENV=production
 
-# Use regular node to run the compiled build, NOT vite or npm
+# running the completed build
 CMD ["node", "build/index.js"]
