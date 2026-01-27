@@ -1,8 +1,10 @@
 // @ts-nocheck
 import { createServerClient } from "@supabase/ssr";
 
-const PUBLIC_SUPABASE_URL = import.meta.env.VITE_PUBLIC_SUPABASE_URL;
-const PUBLIC_SUPABASE_ANON_KEY = import.meta.env.VITE_PUBLIC_SUPABASE_ANON_KEY;
+import { env } from '$env/dynamic/public';
+
+const PUBLIC_SUPABASE_URL = env.PUBLIC_SUPABASE_URL;
+const PUBLIC_SUPABASE_ANON_KEY = env.PUBLIC_SUPABASE_ANON_KEY;
 
 /** @type {import('@sveltejs/kit').Handle} */
 export async function handle({ event, resolve }) {
