@@ -12,7 +12,7 @@
     async function downloadPDF() {
         isGenerating = true;
         try {
-            // Senior SDE Tip: Dynamic imports to keep the initial page load light
+            
             const html2canvasModule = await import('html2canvas');
             const html2canvas = html2canvasModule.default;
             
@@ -21,9 +21,9 @@
             
             const element = document.getElementById('pdf-template');
             
-            // Capture the hidden template as a high-res canvas
+            
             const canvas = await html2canvas(element, {
-                scale: 3, // High scale for professional print quality
+                scale: 3, 
                 useCORS: true,
                 logging: false,
                 windowWidth: 800 

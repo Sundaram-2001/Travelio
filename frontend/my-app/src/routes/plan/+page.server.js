@@ -2,6 +2,7 @@
 import { redirect, fail } from "@sveltejs/kit";
 import { env } from '$env/dynamic/public';
 const PUBLIC_API_URL = env.PUBLIC_API_URL;
+const 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ locals }) {
     const { session } = await locals.safeGetSession();

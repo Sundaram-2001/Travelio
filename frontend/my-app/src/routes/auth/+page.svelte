@@ -4,7 +4,7 @@
     import { supabase } from "$lib/supabaseClient";
     import { error } from "@sveltejs/kit";
     import { env } from '$env/dynamic/public';
-const PUBLIC_API_URL = env.PUBLIC_API_URL;
+const PUBLIC_SITE_URL = env.PUBLIC_SITE_URL;
     let userName=''
     let email=''
     let successMsg=''
@@ -19,7 +19,7 @@ const PUBLIC_API_URL = env.PUBLIC_API_URL;
     const { error: authError } = await supabase.auth.signInWithOtp({
         email,
         options: {
-        emailRedirectTo: `${PUBLIC_API_URL}/callback`,
+        emailRedirectTo: `${PUBLIC_SITE_URL}/callback`,
         data: {
             name: userName
         }
