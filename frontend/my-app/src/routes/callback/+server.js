@@ -13,7 +13,7 @@ export const GET = async ({ url, locals: { supabase } }) => {
         .from('users')
         .select('id')
         .eq('id', data.user.id)
-        .single();
+        .single();8
 
       if (userRecord) {
         throw redirect(303, '/dashboard');
@@ -24,5 +24,5 @@ export const GET = async ({ url, locals: { supabase } }) => {
   }
 
   
-  throw redirect(303, '/login?error=invalid-link');
+  throw redirect(303, '/auth?error=invalid-link');
 };

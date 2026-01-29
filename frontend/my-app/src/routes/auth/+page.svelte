@@ -1,46 +1,62 @@
 <script>
 // @ts-nocheck
-
     import { supabase } from "$lib/supabaseClient";
-    import { error } from "@sveltejs/kit";
     import { env } from '$env/dynamic/public';
-const PUBLIC_SITE_URL = env.PUBLIC_SITE_URL;
-    let userName=''
-    let email=''
-    let successMsg=''
-    let errorMsg=''
-    let loading=false
+    import { page } from '$app/stores';
+
+    // 1. Reactive Error Handling from URL
+    // This grabs "?error=invalid-link" if the /callback gatekeeper redirects here
+    $: errorType = $page.url.searchParams.get('error');
+    
+    const errorMap = {
+        'invalid-link': "That link has expired or was already used. Let's send you a fresh one!",
+        'default': "Authentication failed. Please try again."
+    };
+
+    const PUBLIC_SITE_URL = env.PUBLIC_SITE_URL;
+    
+    let userName = '';
+    let email = '';
+    let successMsg = '';
+    let errorMsg = '';
+    let loading = false;
+
     async function handleSubmit() {
-    loading = true
-    successMsg = ""
-    errorMsg = ""
+        loading = true;
+        successMsg = "";
+        errorMsg = "";
+        
+        try {
+            const { error: authError } = await supabase.auth.signInWithOtp({
+                email,
+                options: {
+                    emailRedirectTo: `${PUBLIC_SITE_URL}/callback`,
+                    data: {
+                        name: userName
+                    }
+                }
+            });
 
-    try {
-    const { error: authError } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-        emailRedirectTo: `${PUBLIC_SITE_URL}/callback`,
-        data: {
-            name: userName
+            if (authError) throw authError;
+
+            successMsg = "Awesome! Kindly check your email 📩";
+        } catch (err) {
+            console.warn("Auth Error:", err);
+            errorMsg = err?.message ?? "Unexpected error. Please try again.";
+        } finally {
+            loading = false;
         }
-        }
-    })
-
-    if (authError) {
-        throw authError
     }
-
-    successMsg = "Awesome! Kindly check your email 📩"
-    } catch (err) {
-    console.warn(err)
-    errorMsg = err?.message ?? "Unexpected error. Please try again."
-    } finally {
-    loading = false
-    }
-}
 </script>
+
 <main>
     <div class="card">
+        {#if errorType}
+            <div class="error-banner">
+                <p>{errorMap[errorType] || errorMap['default']}</p>
+            </div>
+        {/if}
+
         <header>
             <h3>Let's get you set up</h3>
             <p>Create your traveler profile to start planning.</p>
@@ -69,15 +85,19 @@ const PUBLIC_SITE_URL = env.PUBLIC_SITE_URL;
                 />
             </div>
 
-            <button type="submit" class="primary" disabled={loading}>{loading ? "Processing..":"Submit" }</button>
+            <button type="submit" class="primary" disabled={loading}>
+                {loading ? "Processing..." : "Submit"}
+            </button>
         </form>
+
         {#if errorMsg}
-            <p class="error">{errorMsg}</p>
+            <p class="error-text">{errorMsg}</p>
         {/if}
 
         {#if successMsg}
-            <p class="success">{successMsg}</p>
+            <p class="success-text">{successMsg}</p>
         {/if}
+
         <p class="footer-text">Already have an account? <a href="/login">Log in</a></p>
     </div>
 </main>
@@ -88,8 +108,9 @@ const PUBLIC_SITE_URL = env.PUBLIC_SITE_URL;
         justify-content: center;
         align-items: center;
         min-height: 100vh;
-        background-color: #f9fafb; /* Light clean background */
-        font-family: sans-serif;
+        background-color: #f9fafb; 
+        font-family: 'Inter', -apple-system, sans-serif;
+        padding: 1rem;
     }
 
     .card {
@@ -104,6 +125,19 @@ const PUBLIC_SITE_URL = env.PUBLIC_SITE_URL;
         text-align: center;
     }
 
+    
+    .error-banner {
+        background-color: #fee2e2;
+        border: 1px solid #ef4444;
+        color: #b91c1c;
+        padding: 0.85rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        font-size: 0.85rem;
+        text-align: left;
+        line-height: 1.4;
+    }
+
     header {
         margin-bottom: 2rem;
     }
@@ -112,6 +146,7 @@ const PUBLIC_SITE_URL = env.PUBLIC_SITE_URL;
         margin: 0;
         font-size: 1.5rem;
         color: #111;
+        font-weight: 700;
     }
 
     header p {
@@ -128,7 +163,7 @@ const PUBLIC_SITE_URL = env.PUBLIC_SITE_URL;
     }
 
     label {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         font-weight: 600;
         color: #374151;
         margin-bottom: 0.4rem;
@@ -150,8 +185,8 @@ const PUBLIC_SITE_URL = env.PUBLIC_SITE_URL;
 
     button {
         width: 100%;
-        padding: 0.75rem;
-        background-color: #333;
+        padding: 0.85rem;
+        background-color: #111827;
         color: white;
         border: none;
         border-radius: 6px;
@@ -171,16 +206,18 @@ const PUBLIC_SITE_URL = env.PUBLIC_SITE_URL;
         cursor: not-allowed;
     }
 
-    .error {
+    .error-text {
         margin-top: 1rem;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         color: #dc2626; /* red */
+        font-weight: 500;
     }
 
-    .success {
+    .success-text {
         margin-top: 1rem;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         color: #16a34a; /* green */
+        font-weight: 500;
     }
 
     .footer-text {
