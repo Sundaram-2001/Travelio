@@ -37,12 +37,16 @@ export const actions = {
             });
 
             if (!response.ok) {
-                // Safely handle cases where the API might not return JSON
-                const apiError = await response.json().catch(() => ({}));
-                return fail(response.status, {
-                    message: apiError.message || "Server side error, try again!",
-                    full_name
-                });
+                const statusCode=response.status()
+                const backendMessage=await response.text()
+                let errorMessage = "Unknown Server Error";
+                try {
+                    const jsonResponse=JSON.parse(backendMessage)
+                    errorMessage=jsonResponse.message||backendMessage
+                } catch (error) {
+                    errorMessage = rawResponse.substring(0, 200); 
+                }
+                console.error(`[BACKEND ERROR] Status: ${statusCode} | Message: ${errorMessage}`);
             }
 
             return {

@@ -17,7 +17,7 @@ router.get("/",(req,res)=>{
 })
 router.post("/onboard", verifyJWT, async (req, res) => {
     try {
-        // We get the userID from the request object where the middleware saved it
+        
         const userID = req.userId; 
         const { full_name, currentCity } = req.body;
 
@@ -31,11 +31,14 @@ router.post("/onboard", verifyJWT, async (req, res) => {
             });
 
         if (dbError) throw dbError;
-
+        console.error(dbError)
         return res.status(200).json({ success: true });
     } catch (err) {
         console.error("Database Error:", err.message);
-        return res.status(400).json({ message: err.message });
+        return res.status(400).json({ 
+            success: false,
+            message: err.message || "Failed to save profile to database" 
+        });
     }
 });
 
