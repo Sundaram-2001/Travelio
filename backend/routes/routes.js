@@ -42,6 +42,6 @@ router.post("/onboard", verifyJWT, async (req, res) => {
     }
 });
 
-router.post("/createTrip",createTrip)
+router.post("/createTrip",verifyJWT,createTrip)
 
 export default router;
