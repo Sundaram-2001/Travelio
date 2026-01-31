@@ -20,7 +20,7 @@ function getKey(header, callback) {
 export const verifyJWT = (req, res, next) => {
     const authHeader = req.headers.authorization;
 
-    // Fix: Prevent .split() on undefined
+    
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         console.error("Auth Failure: No Bearer token");
         return res.status(401).json({ message: "No token provided" });
@@ -28,8 +28,8 @@ export const verifyJWT = (req, res, next) => {
 
     const token = authHeader.split(' ')[1];
 
-    // Fix: Use RS256 algorithm (Standard for Supabase JWKS)
-    jwt.verify(token, getKey, { algorithms: ['RS256'] }, (err, decoded) => {
+    
+    jwt.verify(token, getKey, { algorithms: ['HS256'] }, (err, decoded) => {
         if (err) {
             console.error("JWT Verify Error:", err.message);
             return res.status(401).json({ message: "Unauthorized!" });
