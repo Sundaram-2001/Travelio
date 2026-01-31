@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import jwksClient from "jwks-rsa";
 
 const client = jwksClient({
-    // Your specific project URL
+    // public key endpoint
     jwksUri: "https://fhavkotpssawwpixnqhj.supabase.co/auth/v1/.well-known/jwks.json",
     cache: true,
     rateLimit: true
@@ -14,7 +14,7 @@ function getKey(header, callback) {
             console.error("JWKS Key Retrieval Error:", err);
             return callback(err || new Error('Public key not found'));
         }
-        // For ES256, getPublicKey() is the correct method
+        // extracts the public key from the key obj we got above
         const signingKey = key.getPublicKey();
         callback(null, signingKey);
     });
@@ -23,14 +23,14 @@ function getKey(header, callback) {
 export const verifyJWT = (req, res, next) => {
     const authHeader = req.headers.authorization;
 
-    // Safety check to prevent .split() crash
+    // prevents server from crashing
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ message: "No token provided" });
     }
 
     const token = authHeader.split(' ')[1];
 
-    // CRITICAL: Must match the "alg": "ES256" from your jwt.io check
+    //verifying step
     jwt.verify(token, getKey, { algorithms: ['ES256'] }, (err, decoded) => {
         if (err) {
             console.error("JWT Verification Error:", err.message);
