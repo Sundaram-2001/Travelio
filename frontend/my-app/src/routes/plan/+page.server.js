@@ -1,6 +1,7 @@
 // @ts-nocheck
-import { redirect, fail } from "@sveltejs/kit";
+import { redirect, fail, json } from "@sveltejs/kit";
 import { env } from '$env/dynamic/public';
+import { sortAndDeduplicateDiagnostics } from "typescript";
 const PUBLIC_API_URL = env.PUBLIC_API_URL;
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ locals }) {
@@ -46,31 +47,37 @@ export const actions = {
         }
 
         try {
-            
-            const response = await fetch(`${PUBLIC_API_URL}/createTrip`, {
-                method: "POST",
-                headers: {
-                    'Authorization': `Bearer ${session.access_token}`, 
-                    'Content-Type': 'application/json'
+            const response = await fetch(`${PUBLIC_API_URL}/createTrip`,{
+                method:"POST",
+                headers:{
+                    'Authorization':`Bearer ${session.access_token}`,
+                    'Content-Type':'application/json'
                 },
-                body: JSON.stringify(payload)
-            });
-
-            const result = await response.json();
-
-            if (!response.ok) {
-                return fail(response.status, {
-                    message: result.message || "Backend failed to process trip"
-                });
+                body:JSON.stringify(payload)
+            })
+            const responseText=await response.text()
+            let result;
+            try {
+                result=JSON.parse(responseText)
+            } catch (e) {
+                console.error(`Infrastructure Error (${response.status}):`, responseText.substring(0, 200))
+                return fail(
+                    response.status,{
+                        message:`API Error ${response.status}: API retunred invalid response`
+                    }
+                )
             }
-
-            
-            return {
-                success: true,
-                message: "Trip created successfully, you will be redirected...",
-                tripID: result.tripID 
-            };
-            
+            if(!response.ok){
+                console.error("Backend logic error" `${response.status}`,result)
+                return fail(response.statusText,{
+                    message:result.message||"Something went wrong, contact support"
+                })
+            }
+            return{
+                success:true,
+                message:"Trip created successully!",
+                tripID:result.tripID
+            }
         } catch (err) {
             console.error("Critical API Error:", err);
             return fail(500, { message: "Connection to backend API failed" });
