@@ -4,7 +4,7 @@
     const { trip } = data;
     let isGenerating = $state(false);
     
-    // Extracting the first transport record from the array
+    
     const transport = trip.transport && trip.transport.length > 0 
                       ? trip.transport[0] 
                       : null;
