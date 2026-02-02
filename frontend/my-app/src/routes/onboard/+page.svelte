@@ -2,6 +2,7 @@
 // @ts-nocheck
 
     import { enhance } from '$app/forms';
+    import { goto } from '$app/navigation';
     export let form; 
     export let data; 
 
@@ -19,6 +20,7 @@
                 loading = true;
                 return async ({ update }) => {
                     loading = false;
+                    await goto("/dashboard")
                     update();
                 };
             }}
