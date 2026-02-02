@@ -62,6 +62,7 @@
 
             {#if form?.message}
                 <p class="error">{form.message}</p>
+                <a href="/dashboard">Go to dashboard</a>
             {/if}
 
             <button type="submit" disabled={loading}>
