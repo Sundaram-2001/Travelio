@@ -31,6 +31,7 @@ app.use((err, req, res, next) => {
 });
 
 app.get("/ping",async(req,res)=>{
+    console.log("Keeping the server up...")
     res.status(200).end("keep up...")
 })
 
